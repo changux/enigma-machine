@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma Machine Visual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #f39c12;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .enigma-machine {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .rotor-section {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .rotor-section h3 {
+            margin-bottom: 15px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .rotor-display {
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 2em;
+            font-weight: bold;
+            color: #f39c12;
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        .rotor-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .rotor-btn {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .rotor-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .input-section {
+            background: linear-gradient(145deg, #27ae60, #229954);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-section h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            background: rgba(255,255,255,0.9);
+            color: #2c3e50;
+        }
+
+        .plugboard-section {
+            background: linear-gradient(145deg, #8e44ad, #7d3c98);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .plugboard-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: rgba(255,255,255,0.9);
+            color: #2c3e50;
+        }
+
+        .encrypt-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .encrypt-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .flow-visualization {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(52, 73, 94, 0.5);
+            border-radius: 10px;
+            opacity: 0.3;
+            transition: all 0.5s ease;
+        }
+
+        .flow-step.active {
+            opacity: 1;
+            background: rgba(52, 152, 219, 0.3);
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .flow-letter {
+            background: #f39c12;
+            color: #2c3e50;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .flow-arrow {
+            margin: 0 15px;
+            color: #3498db;
+            font-size: 1.5em;
+        }
+
+        .result-section {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-text {
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 3px;
+            word-wrap: break-word;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            background: #34495e;
+            border: 2px solid #2c3e50;
+            color: white;
+            padding: 15px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .key:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .key.pressed {
+            background: #f39c12;
+            color: #2c3e50;
+            transform: scale(0.95);
+        }
+
+        .key.lit {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.8);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .keyboard {
+                grid-template-columns: repeat(10, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Enigma Machine</h1>
+            <p>Interactive Visual Simulation</p>
+        </div>
+
+        <div class="enigma-machine">
+            <div class="control-panel">
+                <div class="rotor-section">
+                    <h3>Rotor I</h3>
+                    <div class="rotor-display" id="rotor1-display">A</div>
+                    <div class="rotor-controls">
+                        <button class="rotor-btn" onclick="adjustRotor(0, -1)">◀</button>
+                        <button class="rotor-btn" onclick="adjustRotor(0, 1)">▶</button>
+                    </div>
+                </div>
+                <div class="rotor-section">
+                    <h3>Rotor II</h3>
+                    <div class="rotor-display" id="rotor2-display">A</div>
+                    <div class="rotor-controls">
+                        <button class="rotor-btn" onclick="adjustRotor(1, -1)">◀</button>
+                        <button class="rotor-btn" onclick="adjustRotor(1, 1)">▶</button>
+                    </div>
+                </div>
+                <div class="rotor-section">
+                    <h3>Rotor III</h3>
+                    <div class="rotor-display" id="rotor3-display">A</div>
+                    <div class="rotor-controls">
+                        <button class="rotor-btn" onclick="adjustRotor(2, -1)">◀</button>
+                        <button class="rotor-btn" onclick="adjustRotor(2, 1)">▶</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3>Message to Encrypt</h3>
+                <input type="text" class="message-input" id="message" placeholder="Type your message here..." value="ATTACKATDAWN">
+            </div>
+
+            <div class="plugboard-section">
+                <h3>Plugboard (Connections)</h3>
+                <input type="text" class="plugboard-input" id="plugboard" placeholder="Ex: A-M G-L E-T" value="A-M G-L E-T">
+            </div>
+
+            <button class="encrypt-btn" onclick="processMessage()">Encrypt / Decrypt</button>
+
+            <div class="keyboard" id="keyboard"></div>
+
+            <div class="flow-visualization" id="flow-visualization">
+                <h3>Encryption Flow (Step by Step)</h3>
+                <div id="flow-steps"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Result</h3>
+                <div class="result-text" id="result">Press encrypt to see the result</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de rotores y reflector
+        const rotorWirings = {
+            'I': ['EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'],
+            'II': ['AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'],
+            'III': ['BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V']
+        };
+        const reflectorB = 'YRUHQSLDPXNGOKMIEBFZCWVJAT';
+
+        let rotorPositions = [0, 0, 0]; // A, A, A
+
+        class Rotor {
+            constructor(wiring, notch, position = 0) {
+                this.wiring = wiring;
+                this.notch = notch;
+                this.position = position;
+            }
+
+            encodeForward(c) {
+                const idx = (c.charCodeAt(0) - 65 + this.position) % 26;
+                return this.wiring[idx];
+            }
+
+            encodeBackward(c) {
+                const idx = (this.wiring.indexOf(c) - this.position + 26) % 26;
+                return String.fromCharCode(idx + 65);
+            }
+
+            step() {
+                this.position = (this.position + 1) % 26;
+                return this.atNotch();
+            }
+
+            atNotch() {
+                return String.fromCharCode((this.position % 26) + 65) === this.notch;
+            }
+        }
+
+        class Plugboard {
+            constructor(pairs = []) {
+                this.mapping = {};
+                for (let i = 0; i < 26; i++) {
+                    const char = String.fromCharCode(i + 65);
+                    this.mapping[char] = char;
+                }
+                for (const [a, b] of pairs) {
+                    this.mapping[a.toUpperCase()] = b.toUpperCase();
+                    this.mapping[b.toUpperCase()] = a.toUpperCase();
+                }
+            }
+
+            swap(c) {
+                return this.mapping[c.toUpperCase()] || c;
+            }
+        }
+
+        class EnigmaMachine {
+            constructor(rotorConfigs, reflector, plugboardPairs = []) {
+                this.rotors = rotorConfigs.map(([wiring, notch, position]) => 
+                    new Rotor(wiring, notch, position));
+                this.reflector = reflector;
+                this.plugboard = new Plugboard(plugboardPairs);
+            }
+
+            encryptLetter(c, showFlow = false) {
+                if (!c.match(/[A-Z]/)) return c;
+
+                const steps = [];
+                let current = c;
+
+                // Plugboard entrada
+                current = this.plugboard.swap(current);
+                if (showFlow) steps.push({step: 'Plugboard (input)', letter: current, description: 'Initial swap'});
+
+                // Rotores hacia adelante (derecha a izquierda)
+                for (let i = 2; i >= 0; i--) {
+                    current = this.rotors[i].encodeForward(current);
+                    if (showFlow) steps.push({step: `Rotor ${i + 1} (→)`, letter: current, description: `Forward encoding`});
+                }
+
+                // Reflector
+                current = this.reflector[current.charCodeAt(0) - 65];
+                if (showFlow) steps.push({step: 'Reflector', letter: current, description: 'Signal reflection'});
+
+                // Rotores hacia atrás (izquierda a derecha)
+                for (let i = 0; i < 3; i++) {
+                    current = this.rotors[i].encodeBackward(current);
+                    if (showFlow) steps.push({step: `Rotor ${i + 1} (←)`, letter: current, description: `Backward encoding`});
+                }
+
+                // Plugboard salida
+                current = this.plugboard.swap(current);
+                if (showFlow) steps.push({step: 'Plugboard (output)', letter: current, description: 'Final swap'});
+
+                // Avanzar rotores
+                let rotateNext = this.rotors[2].step();
+                if (rotateNext) {
+                    let rotateNext2 = this.rotors[1].step();
+                    if (rotateNext2) {
+                        this.rotors[0].step();
+                    }
+                }
+
+                return showFlow ? {result: current, steps} : current;
+            }
+
+            encryptMessage(message) {
+                let result = '';
+                for (const c of message.toUpperCase()) {
+                    if (c.match(/[A-Z]/)) {
+                        result += this.encryptLetter(c);
+                    }
+                }
+                return result;
+            }
+        }
+
+        // Crear teclado visual
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const letters = 'QWERTYUIOPASDFGHJKLZXCVBNM';
+            
+            for (const letter of letters) {
+                const key = document.createElement('div');
+                key.className = 'key';
+                key.textContent = letter;
+                key.id = `key-${letter}`;
+                key.onclick = () => typeKey(letter);
+                keyboard.appendChild(key);
+            }
+        }
+
+        function typeKey(letter) {
+            const key = document.getElementById(`key-${letter}`);
+            if (key) {
+                key.classList.add('pressed');
+                setTimeout(() => key.classList.remove('pressed'), 200);
+            }
+            
+            const messageInput = document.getElementById('message');
+            messageInput.value += letter;
+        }
+
+        function adjustRotor(rotorIndex, direction) {
+            rotorPositions[rotorIndex] = (rotorPositions[rotorIndex] + direction + 26) % 26;
+            updateRotorDisplays();
+        }
+
+        function updateRotorDisplays() {
+            for (let i = 0; i < 3; i++) {
+                const display = document.getElementById(`rotor${i + 1}-display`);
+                display.textContent = String.fromCharCode(rotorPositions[i] + 65);
+                display.classList.add('pulse');
+                setTimeout(() => display.classList.remove('pulse'), 500);
+            }
+        }
+
+        function parsePlugboardPairs(input) {
+            return input.toUpperCase().split(' ')
+                .filter(pair => pair.includes('-'))
+                .map(pair => pair.split('-'));
+        }
+
+        function showFlowVisualization(steps) {
+            const flowSteps = document.getElementById('flow-steps');
+            flowSteps.innerHTML = '';
+
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'flow-step';
+                stepDiv.innerHTML = `
+                    <div class="flow-letter">${step.letter}</div>
+                    <span class="flow-arrow">→</span>
+                    <div>
+                        <strong>${step.step}</strong><br>
+                        <small>${step.description}</small>
+                    </div>
+                `;
+                flowSteps.appendChild(stepDiv);
+
+                // Animar paso a paso
+                setTimeout(() => {
+                    stepDiv.classList.add('active');
+                }, index * 300);
+            });
+        }
+
+        function processMessage() {
+            const message = document.getElementById('message').value;
+            const plugboardInput = document.getElementById('plugboard').value;
+            
+            if (!message.trim()) {
+                alert('Please enter a message');
+                return;
+            }
+
+            const plugboardPairs = parsePlugboardPairs(plugboardInput);
+            
+            const rotorConfigs = [
+                [rotorWirings['I'][0], rotorWirings['I'][1], rotorPositions[0]],
+                [rotorWirings['II'][0], rotorWirings['II'][1], rotorPositions[1]],
+                [rotorWirings['III'][0], rotorWirings['III'][1], rotorPositions[2]]
+            ];
+
+            const enigma = new EnigmaMachine(rotorConfigs, reflectorB, plugboardPairs);
+            
+            // Procesar primera letra para mostrar el flujo
+            const firstLetter = message.toUpperCase().replace(/[^A-Z]/g, '')[0];
+            if (firstLetter) {
+                const flowResult = enigma.encryptLetter(firstLetter, true);
+                showFlowVisualization(flowResult.steps);
+                
+                // Destacar tecla de resultado
+                setTimeout(() => {
+                    const resultKey = document.getElementById(`key-${flowResult.result}`);
+                    if (resultKey) {
+                        resultKey.classList.add('lit');
+                        setTimeout(() => resultKey.classList.remove('lit'), 2000);
+                    }
+                }, flowResult.steps.length * 300);
+            }
+
+            // Reiniciar máquina para mensaje completo
+            const enigmaFull = new EnigmaMachine(rotorConfigs, reflectorB, plugboardPairs);
+            const result = enigmaFull.encryptMessage(message);
+            
+            document.getElementById('result').textContent = result;
+        }
+
+        // Eventos de teclado
+        document.addEventListener('keydown', (e) => {
+            const letter = e.key.toUpperCase();
+            
+            // Ignorar si se están presionando teclas modificadoras (Ctrl, Alt, Shift, Meta)
+            if (e.ctrlKey || e.altKey || e.metaKey) {
+                return;
+            }
+            
+            // Solo procesar letras cuando no estamos enfocados en inputs
+            if (letter.match(/[A-Z]/) && 
+                document.activeElement.id !== 'message' && 
+                document.activeElement.id !== 'plugboard' &&
+                !document.activeElement.classList.contains('message-input') &&
+                !document.activeElement.classList.contains('plugboard-input')) {
+                e.preventDefault();
+                typeKey(letter);
+            }
+        });
+
+        // Inicializar
+        createKeyboard();
+        updateRotorDisplays();
+    </script>
+</body>
+</html>
